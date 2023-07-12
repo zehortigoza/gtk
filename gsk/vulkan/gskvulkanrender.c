@@ -653,6 +653,8 @@ gsk_vulkan_render_draw (GskVulkanRender *self)
 {
   GList *l;
 
+  fprintf(stderr, "gsk_vulkan_render_draw vulkanRender=0x%p\n", self);
+
 #ifdef G_ENABLE_DEBUG
   if (GSK_RENDERER_DEBUG_CHECK (self->renderer, SYNC))
     gsk_profiler_timer_begin (gsk_renderer_get_profiler (self->renderer), self->gpu_time_timer);
@@ -683,6 +685,10 @@ gsk_vulkan_render_draw (GskVulkanRender *self)
                                              signal_semaphore_count,
                                              signal_semaphores,
                                              l->next != NULL ? VK_NULL_HANDLE : self->fence);
+      if (l->next == NULL) {
+        VkDevice device = gdk_vulkan_context_get_device (self->vulkan);
+        fprintf(stderr, "\tgsk_vulkan_render_draw()->gsk_vulkan_command_pool_submit_buffer() with fence set. Fence status=%i\n", vkGetFenceStatus(device, self->fence));
+      }
     }
 
 #ifdef G_ENABLE_DEBUG
@@ -720,12 +726,15 @@ gsk_vulkan_render_cleanup (GskVulkanRender *self)
 {
   VkDevice device = gdk_vulkan_context_get_device (self->vulkan);
 
+  fprintf(stderr, "gsk_vulkan_render_cleanup vulkanRender=0x%p\n", self);
+
   /* XXX: Wait for fence here or just in reset()? */
   GSK_VK_CHECK (vkWaitForFences, device,
                                  1,
                                  &self->fence,
                                  VK_TRUE,
                                  INT64_MAX);
+  fprintf(stderr, "\tafter wait vkGetFenceStatus(device, self->fence)=%i\n", vkGetFenceStatus(device, self->fence));
 
   GSK_VK_CHECK (vkResetFences, device,
                                1,
@@ -744,7 +753,8 @@ gsk_vulkan_render_cleanup (GskVulkanRender *self)
 
   g_list_free_full (self->render_passes, (GDestroyNotify) gsk_vulkan_render_pass_free);
   self->render_passes = NULL;
-  g_slist_free_full (self->cleanup_images, g_object_unref);
+  fprintf(stderr, "\tg_slist_free_full\n");
+  g_slist_free_full (self->cleanup_images, g_object_unref);//here
   self->cleanup_images = NULL;
 
   g_clear_pointer (&self->clip, cairo_region_destroy);

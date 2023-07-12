@@ -1026,6 +1026,7 @@ gsk_vulkan_image_finalize (GObject *object)
                           NULL);
     }
 
+  fprintf(stderr, "gsk_vulkan_image_finalize\n");
   /* memory is NULL for for_swapchain() images, where we don't own
    * the VkImage */
   if (self->memory)

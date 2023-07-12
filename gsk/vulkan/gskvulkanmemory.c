@@ -58,6 +58,7 @@ gsk_vulkan_memory_new (GdkVulkanContext      *context,
 void
 gsk_vulkan_memory_free (GskVulkanMemory *self)
 {
+  fprintf(stderr, "gsk_vulkan_memory_free() vk_memory=%p\n", self->vk_memory);
   vkFreeMemory (gdk_vulkan_context_get_device (self->vulkan),
                 self->vk_memory,
                 NULL);
