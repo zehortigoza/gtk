@@ -431,7 +431,7 @@ gdk_vulkan_context_check_swapchain (GdkVulkanContext  *context,
       capabilities.currentExtent.width = MAX (1, (int) ceil (gdk_surface_get_width (surface) * scale));
       capabilities.currentExtent.height = MAX (1, (int) ceil (gdk_surface_get_height (surface) * scale));
     }
-  // HERE wait executing to stop
+
   res = GDK_VK_CHECK (vkCreateSwapchainKHR, device,
                                             &(VkSwapchainCreateInfoKHR) {
                                                 .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
@@ -640,7 +640,6 @@ gdk_vulkan_context_surface_resized (GdkDrawContext *draw_context)
   GdkVulkanContext *context = GDK_VULKAN_CONTEXT (draw_context);
   GError *error = NULL;
 
-  // here
   if (!gdk_vulkan_context_check_swapchain (context, &error))
     {
       g_warning ("%s", error->message);
